@@ -4,7 +4,7 @@
 // @version      0.1
 // @description  Inline plaintext attachments
 // @author       JP Verkamp
-// @match        https://mail.google.com/mail/u/0/
+// @match        https://mail.google.com/mail/
 // @grant        none
 // @require      https://code.jquery.com/jquery-2.1.4.min.js
 // ==/UserScript==

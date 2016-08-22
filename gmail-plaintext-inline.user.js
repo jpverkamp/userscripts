@@ -8,8 +8,6 @@
 // @grant        none
 // ==/UserScript==
 
-// https://raw.githubusercontent.com/jpverkamp/userscripts/master/gmail-plaintext-inline.user.js
-
 /* jshint -W097 */
 'use strict';
 

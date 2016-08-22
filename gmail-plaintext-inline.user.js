@@ -13,7 +13,7 @@
 /* jshint -W097 */
 'use strict';
 
-var DEBUG_MODE = true;
+var DEBUG_MODE = false;
 
 var delayedEvent = function(f, timeout, retries) {
     timeout = timeout || 0;

@@ -4,15 +4,16 @@
 // @version      0.1
 // @description  Inline plaintext attachments
 // @author       JP Verkamp
-// @match        https://mail.google.com/mail/*
+// @match        https://mail.google.com/mail/u/*
 // @grant        none
-// @require      https://code.jquery.com/jquery-2.1.4.min.js
 // ==/UserScript==
+
+// https://raw.githubusercontent.com/jpverkamp/userscripts/master/gmail-plaintext-inline.user.js
 
 /* jshint -W097 */
 'use strict';
 
-var DEBUG_MODE = false;
+var DEBUG_MODE = true;
 
 var delayedEvent = function(f, timeout, retries) {
     timeout = timeout || 0;
@@ -20,7 +21,7 @@ var delayedEvent = function(f, timeout, retries) {
 
     return function(evt) {
         setTimeout(f, timeout, evt, retries, timeout * 2);
-    }
+    };
 };
 
 var checkForPlaintexts = function(evt, retries, delay) {
@@ -31,33 +32,41 @@ var checkForPlaintexts = function(evt, retries, delay) {
     }
 
     if (DEBUG_MODE) console.log('GPTI: checking for plaintext attachments on: ' + window.location.hash);
-    var foundOne = false;
 
-    jQuery('span[download_url]').each(function(i, el) {
-        if (DEBUG_MODE) console.log('GPTI: loading attachment ' + i);
-        foundOne = true;
+    var download_urls = document.querySelectorAll('span[download_url]');
+    if (download_urls.length > 0) {
+        for (var i = 0; i < download_urls.length; i++) {
+            var el = download_urls[i];
+            var parts = el.getAttribute('download_url').split(':');
 
-        var parts = el.getAttribute('download_url').split(':');
-        if (!parts || parts[0] != 'text/plain') return;
-        var url = parts[3];
+            if (!parts || parts[0] != 'text/plain') return;
+            var url = parts[3];
 
-        var newElement = jQuery('<pre id="GPTI_' + i + '"></pre>');
-        newElement.text('Loading: ' + url);
+            var new_el = document.createElement("span");
+            new_el.setAttribute('id', 'GPTI_' + i);
+            new_el.innerText = 'Loading: ' + url;
+            el.parentNode.replaceChild(new_el, el);
 
-        jQuery(el).replaceWith(newElement);
-        jQuery.ajax({
-            url: url,
-            success: function(data) {
-                newElement.text(data);
-            }
-        });
-    });
-
-    if (!foundOne && retries) {
+            var ajax = new XMLHttpRequest();
+            ajax.open('GET', url);
+            ajax.onreadystatechange = function() {
+                if (ajax.readyState == XMLHttpRequest.DONE) {
+                    if(ajax.status == 200){
+                        new_el.innerText = ajax.responseText;
+                    } else {
+                        new_el.innerText = 'Error fetching ' + url + ': ' + ajax.statusText;
+                    }
+                }
+            };
+            ajax.send();
+        }
+    } else if(retries) {
         if (DEBUG_MODE) console.log('GPTI: no attachments found, retrying ' + retries + ' more times');
         setTimeout(checkForPlaintexts, delay, evt, retries - 1, delay * 2);
     }
 };
 
-jQuery(window).bind('hashchange', delayedEvent(checkForPlaintexts, 125, 3));
-jQuery(delayedEvent(checkForPlaintexts, 125, 3));
+window.addEventListener('hashchange', delayedEvent(checkForPlaintexts, 125, 3));
+delayedEvent(checkForPlaintexts, 125, 3)();
+
+if (DEBUG_MODE) console.log('GPTI: LOADED');

@@ -9,6 +9,8 @@
 // @require      https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js
 // ==/UserScript==
 
+/* THIS DOESN'T WORK. IT APPEARS TO REVERSE THEM, BUT CLICKING OPENS THE ORIGINAL MESSAGE IN THAT POSITION */
+
 /* jshint -W097 */
 'use strict';
 

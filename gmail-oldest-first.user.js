@@ -8,27 +8,21 @@
 // @grant        none
 // ==/UserScript==
 
+// Warning, this will break if (when) GMail changes their class names
+
 /* jshint -W097 */
 'use strict';
 
 (function() {
-    let attemptReverse = () => {
-        let reversed = false;
-        document.querySelectorAll('tbody').forEach((el) => {
-            if (el.childElementCount < 10 || el.getAttribute('style')) {
-                return;
-            }
-            
-            el.setAttribute('style', 'display: flex; flex-direction: column-reverse;');
-            reversed = true;
-            console.log('GMail Oldest First: Reverse applied');
-        });
-
-        if (reversed) {
-            setTimeout(attemptReverse, 10000);
-        } else {
-            setTimeout(attemptReverse, 100);
-        }
-    };
-    setTimeout(attemptReverse, 100);
+    let head = document.getElementsByTagName('head')[0];
+    let style = document.createElement('style');
+    style.type = 'text/css';
+    style.innerHTML = `
+table.F.cf.zt tbody {
+    display: flex;
+    flex-direction: column-reverse;
+}    
+    `;
+    head.appendChild(style);
+    console.log('GMail Oldest First applied style');
 })();
